@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Saito Foods">
+<title>Saito Foods — Morning Briefing</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f4ff;}
+.page-bg{
+  background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Tsunami_by_hokusai_19th_century.jpg/800px-Tsunami_by_hokusai_19th_century.jpg');
+  background-size:cover;background-position:center top;background-attachment:fixed;
+  min-height:100vh;padding:0 0 24px;
+}
+.wave-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,30,60,0.62);z-index:0;pointer-events:none;}
+.content-wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:0 10px 24px;}
+.site-header{background:#f5c800;border-radius:0 0 14px 14px;padding:6px 16px 8px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;box-shadow:0 4px 24px rgba(0,0,0,0.3);overflow:hidden;min-height:64px;}
+.header-left{display:flex;align-items:center;gap:10px;}
+.logo-mascot-wrap{width:76px;height:58px;flex-shrink:0;}
+.logo-text-block{display:flex;flex-direction:column;}
+.logo-delivery{background:#d42020;color:#fff;font-size:10px;font-weight:900;letter-spacing:.12em;padding:2px 8px;border-radius:3px;display:inline-block;transform:rotate(-2deg);margin-bottom:2px;width:fit-content;}
+.logo-jp{font-size:20px;font-weight:900;color:#1a3a7a;line-height:1.05;}
+.logo-en{font-size:8px;font-weight:700;color:#1a3a7a;letter-spacing:.1em;}
+.logo-since{font-size:7px;color:#1a3a7a;opacity:.7;font-style:italic;}
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+.header-date{font-size:13px;font-weight:700;color:#1a3a7a;}
+.hdr-btns{display:flex;gap:6px;}
+.btn{border:none;border-radius:7px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s;}
+.btn:active{opacity:.75;}
+.btn-print{background:#1a3a7a;color:#f5c800;}
+.btn-save{background:#1a8a3a;color:#fff;}
+.btn-hist{background:#fff;color:#1a3a7a;border:1.5px solid #1a3a7a;}
+.card{background:rgba(255,255,255,0.94);border:0.5px solid rgba(255,255,255,0.5);border-radius:12px;padding:9px 12px;margin-bottom:8px;backdrop-filter:blur(6px);}
+.card-title{font-size:9px;font-weight:700;color:#1a3a7a;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:1.5px solid #1a3a7a;display:flex;justify-content:space-between;align-items:center;}
+.card-sub{font-weight:400;color:#666;letter-spacing:0;text-transform:none;}
+.sec-label{font-size:8px;font-weight:700;color:#1a3a7a;letter-spacing:.08em;text-transform:uppercase;margin:6px 0 4px;padding-left:5px;border-left:2px solid #1a3a7a;}
+.ds-layout{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mg-2{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:5px;}
+.mg-6{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:4px;}
+.mi{background:#f0f4ff;border-radius:6px;padding:5px 6px 4px;border:0.5px solid #c8d4f0;text-align:center;}
+.mi.sales{background:#fff8e6;border-color:#f0d080;}
+.mi-label{font-size:8px;color:#1a3a7a;font-weight:600;line-height:1.2;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mi-input{width:100%;border:none;background:transparent;font-size:18px;font-weight:700;color:#1a3a7a;outline:none;font-family:inherit;text-align:center;padding:0;line-height:1.2;}
+.mi-input::placeholder{color:#c8d4f0;}
+.mi-input.sv{color:#8a5c00;font-size:16px;}
+.order-table{width:100%;border-collapse:collapse;table-layout:fixed;}
+.order-table th{font-size:9px;font-weight:700;color:#1a3a7a;text-align:left;padding:0 0 5px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid #c8d4f0;}
+.order-table td{padding:2px 0;vertical-align:middle;}
+.cell-input{width:100%;border:none;border-bottom:0.5px solid transparent;background:transparent;font-size:12px;color:#222;padding:3px 2px;font-family:inherit;outline:none;transition:border-color .15s;}
+.cell-input:focus{border-bottom-color:#1a3a7a;}
+.cell-input::placeholder{color:#ccc;}
+.cell-input.qty{text-align:right;}
+.add-row-btn{margin-top:6px;background:transparent;border:0.5px dashed #1a3a7a;border-radius:6px;color:#1a3a7a;font-size:10px;padding:4px 12px;cursor:pointer;width:100%;font-family:inherit;}
+.add-row-btn:hover{background:#f0f4ff;}
+.del-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:12px;padding:2px 4px;border-radius:3px;}
+.del-btn:hover{color:#d42020;background:#fff0f0;}
+.memo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.memo-box{font-size:10px;line-height:1.9;color:#333;}
+.memo-box strong{font-weight:700;color:#1a3a7a;display:block;margin-bottom:3px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;}
+.staff-names{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;}
+.staff-chip{font-size:9px;background:#f0f4ff;border:0.5px solid #c8d4f0;border-radius:20px;padding:1px 7px;color:#1a3a7a;font-weight:600;}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);padding:9px 22px;border-radius:22px;font-size:12px;font-weight:600;opacity:0;transition:opacity .3s;z-index:999;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+.toast.ok{background:#1a3a7a;color:#fff;}
+.toast.err{background:#d42020;color:#fff;}
+.hist-panel{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,30,60,0.88);z-index:100;overflow-y:auto;padding:20px 12px;}
+.hist-panel.open{display:block;}
+.hist-inner{max-width:760px;margin:0 auto;}
+.hist-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.hist-title{font-size:17px;font-weight:700;color:#fff;}
+.hist-close{background:#fff;color:#1a3a7a;border:none;border-radius:7px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.year-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;}
+.year-tab{background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:7px;padding:6px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.year-tab.active{background:#f5c800;color:#1a3a7a;}
+.day-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:7px;margin-bottom:16px;}
+.day-card{background:rgba(255,255,255,0.13);border-radius:9px;padding:9px 11px;cursor:pointer;border:0.5px solid rgba(255,255,255,0.2);transition:background .15s;}
+.day-card:hover{background:rgba(255,255,255,0.26);}
+.day-card-date{font-size:12px;font-weight:700;color:#f5c800;}
+.day-card-meta{font-size:10px;color:rgba(255,255,255,0.65);margin-top:3px;}
+.rec-detail{background:rgba(255,255,255,0.96);border-radius:12px;padding:14px 16px;}
+.rec-back{background:transparent;border:none;color:#1a3a7a;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:12px;padding:0;font-family:inherit;}
+.rec-section{margin-bottom:12px;}
+.rec-sec-title{font-size:9px;font-weight:700;color:#1a3a7a;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid #c8d4f0;padding-bottom:4px;margin-bottom:7px;}
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:5px;}
+.rec-item{background:#f0f4ff;border-radius:6px;padding:6px 8px;text-align:center;}
+.rec-item.sales{background:#fff8e6;}
+.rec-item-label{font-size:8px;color:#1a3a7a;font-weight:600;margin-bottom:2px;}
+.rec-item-val{font-size:17px;font-weight:700;color:#1a3a7a;}
+.rec-item.sales .rec-item-val{color:#8a5c00;}
+.rec-table{width:100%;border-collapse:collapse;font-size:11px;}
+.rec-table th{font-size:9px;color:#1a3a7a;font-weight:700;text-align:left;padding:3px 4px;border-bottom:1px solid #c8d4f0;}
+.rec-table td{padding:4px;border-bottom:0.5px solid #e8ecf8;color:#333;}
+.info-msg{color:rgba(255,255,255,0.65);font-size:13px;text-align:center;margin-top:40px;}
+@media print{
+  @page{size:A4 portrait;margin:7mm;}
+  .wave-overlay,.hist-panel,.toast,.hdr-btns{display:none!important;}
+  .page-bg{background:#fff!important;background-image:none!important;min-height:auto;padding:0;}
+  .content-wrap{padding:0;max-width:100%;}
+  .site-header{background:#f5c800!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;margin-bottom:6px;border-radius:0 0 5px 5px;box-shadow:none;}
+  .card{background:#fff!important;border:0.8px solid #bbb;border-radius:3px;padding:6px 8px;margin-bottom:5px;break-inside:avoid;backdrop-filter:none;}
+  .mi{background:#f0f4ff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .mi.sales{background:#fff8e6!important;}
+  .mi-input{font-size:15px;}
+  .mi-input.sv{font-size:13px;}
+  .add-row-btn,.del-btn{display:none!important;}
+  .cell-input{border-bottom:0.5px solid #ccc;}
+}
+</style>
+</head>
+<body>
+<div class="page-bg">
+<div class="wave-overlay"></div>
+<div class="content-wrap">
+
+  <div class="site-header">
+    <div class="header-left">
+      <div class="logo-mascot-wrap">
+        <svg viewBox="0 0 76 58" xmlns="http://www.w3.org/2000/svg" width="76" height="58">
+          <ellipse cx="58" cy="46" rx="11" ry="7" fill="#e8373a"/>
+          <rect x="33" y="34" width="32" height="13" rx="4.5" fill="#e8373a"/>
+          <rect x="62" y="29" width="7" height="16" rx="3.5" fill="#c82a2a"/>
+          <rect x="61" y="28" width="13" height="2.5" rx="1.2" fill="#444"/>
+          <circle cx="38" cy="49" r="8" fill="#222"/><circle cx="38" cy="49" r="4.5" fill="#777"/><circle cx="38" cy="49" r="1.8" fill="#222"/>
+          <circle cx="67" cy="49" r="8" fill="#222"/><circle cx="67" cy="49" r="4.5" fill="#777"/><circle cx="67" cy="49" r="1.8" fill="#222"/>
+          <rect x="19" y="25" width="15" height="12" rx="2" fill="#4a9fd4"/>
+          <rect x="20" y="26" width="13" height="10" rx="1" fill="#5bb0e8"/>
+          <line x1="26.5" y1="26" x2="26.5" y2="37" stroke="#3a8fc0" stroke-width="0.9"/>
+          <rect x="39" y="21" width="19" height="18" rx="3.5" fill="white" stroke="#1a3a7a" stroke-width="1.1"/>
+          <rect x="40" y="30" width="17" height="10" rx="3" fill="#1a3a7a"/>
+          <circle cx="48.5" cy="27" r="5.5" fill="#1a3a7a"/>
+          <text x="48.5" y="30" text-anchor="middle" font-size="6.5" font-weight="900" fill="#f5c800" font-family="serif">サ</text>
+          <ellipse cx="48.5" cy="12" rx="9.5" ry="10" fill="white" stroke="#ddd" stroke-width="0.8"/>
+          <ellipse cx="46" cy="11.5" rx="1.3" ry="1.7" fill="#333"/>
+          <ellipse cx="51" cy="11.5" rx="1.3" ry="1.7" fill="#333"/>
+          <path d="M45 15.5 Q48.5 18 52 15.5" stroke="#333" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+          <rect x="39" y="8" width="19" height="3" rx="1.5" fill="#e8373a"/>
+          <rect x="47" y="6" width="3.5" height="5.5" rx="1" fill="#e8373a"/>
+          <line x1="58" y1="28" x2="63" y2="31" stroke="white" stroke-width="2.8" stroke-linecap="round"/>
+          <line x1="2" y1="40" x2="19" y2="40" stroke="#d4a800" stroke-width="1.8" stroke-linecap="round" opacity="0.8"/>
+          <line x1="5" y1="45" x2="17" y2="45" stroke="#d4a800" stroke-width="1.4" stroke-linecap="round" opacity="0.55"/>
+          <line x1="8" y1="50" x2="16" y2="50" stroke="#d4a800" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
+        </svg>
+      </div>
+      <div class="logo-text-block">
+        <span class="logo-delivery">DELIVERY</span>
+        <div class="logo-jp">サイトウフーズ</div>
+        <div class="logo-en">SAITO FOODS CO., LTD.</div>
+        <div class="logo-since">Since 1997</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="header-date" id="headerDate"></span>
+      <div class="hdr-btns">
+        <button class="btn btn-hist" onclick="openHistory()">History</button>
+        <button class="btn btn-save" onclick="saveRecord()">Save</button>
+        <button class="btn btn-print" onclick="preparePrint()">Print</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Delivery Schedule <span class="card-sub" id="cardDate"></span></div>
+    <div class="ds-layout">
+      <div>
+        <div class="sec-label">Delivery</div>
+        <div class="mg-2">
+          <div class="mi"><div class="mi-label">OOTOYA rice</div><input class="mi-input" id="f_ootoya" type="number" min="0" placeholder="0"></div>
+          <div class="mi"><div class="mi-label">Other rice</div><input class="mi-input" id="f_other" type="number" min="0" placeholder="0"></div>
+        </div>
+        <div class="mg-2">
+          <div class="mi"><div class="mi-label">Condo</div><input class="mi-input" id="f_condo" type="number" min="0" placeholder="0"></div>
+          <div class="mi"><div class="mi-label">Morning</div><input class="mi-input" id="f_morning" type="number" min="0" placeholder="0"></div>
+        </div>
+        <div class="sec-label">Product Orders</div>
+        <div class="mg-6">
+          <div class="mi"><div class="mi-label">Sriracha</div><input class="mi-input" id="f_sriracha" type="number" min="0" placeholder="0"></div>
+          <div class="mi"><div class="mi-label">Nichada</div><input class="mi-input" id="f_nichada" type="number" min="0" placeholder="0"></div>
+          <div class="mi"><div class="mi-label">Tuna Lean</div><input class="mi-input" id="f_akami" type="number" min="0" placeholder="0"></div>
+          <div class="mi"><div class="mi-label">Tuna Med.</div><input class="mi-input" id="f_chutoro" type="number" min="0" placeholder="0"></div>
+          <div class="mi"><div class="mi-label">Tofu Kinu</div><input class="mi-input" id="f_kinu" type="number" min="0" placeholder="0"></div>
+          <div class="mi"><div class="mi-label">Tofu Yose</div><input class="mi-input" id="f_yose" type="number" min="0" placeholder="0"></div>
+        </div>
+      </div>
+      <div>
+        <div class="sec-label">Previous Day Sales</div>
+        <div class="mg-2">
+          <div class="mi sales"><div class="mi-label">BANGKOK</div><input class="mi-input sv" id="f_bangkok" type="number" min="0" placeholder="0"></div>
+          <div class="mi sales"><div class="mi-label">Credit</div><input class="mi-input sv" id="f_credit" type="number" min="0" placeholder="0"></div>
+        </div>
+        <div class="mg-2">
+          <div class="mi sales"><div class="mi-label">Shop</div><input class="mi-input sv" id="f_shop" type="number" min="0" placeholder="0"></div>
+          <div class="mi sales"><div class="mi-label">Sriracha</div><input class="mi-input sv" id="f_ssriracha" type="number" min="0" placeholder="0"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Order Sheet — Restaurant</div>
+    <table class="order-table">
+      <thead><tr>
+        <th style="width:34%">Shop</th>
+        <th style="width:37%">Product</th>
+        <th style="width:16%;text-align:right">Qty</th>
+        <th style="width:13%"></th>
+      </tr></thead>
+      <tbody id="orderBody"></tbody>
+    </table>
+    <button class="add-row-btn" onclick="addRow()">+ Add row</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Reference</div>
+    <div class="memo-grid">
+      <div class="memo-box">
+        <strong>Japanese Phrases</strong>
+        おはようございます<br>こんにちは<br>少々お待ちください<br>チェックお願いいたします。<br>おつりです。<br>ありがとうございます。
+      </div>
+      <div class="memo-box">
+        <strong>Staff</strong>
+        <div class="staff-names">
+          <span class="staff-chip">Mike</span><span class="staff-chip">M</span><span class="staff-chip">Sit</span><span class="staff-chip">Bas</span>
+          <span class="staff-chip">Tum</span><span class="staff-chip">Mai</span><span class="staff-chip">Mii</span>
+          <span class="staff-chip">May</span><span class="staff-chip">Cat</span><span class="staff-chip">Taan</span><span class="staff-chip">Mint</span><span class="staff-chip">Noi</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="hist-panel" id="histPanel">
+  <div class="hist-inner">
+    <div class="hist-header">
+      <span class="hist-title">History</span>
+      <button class="hist-close" onclick="closeHistory()">Close</button>
+    </div>
+    <div class="year-tabs" id="yearTabs"></div>
+    <div id="histContent"></div>
+  </div>
+</div>
+
+<script>
+// ★ GASデプロイ後にここのURLを書き換えてください ★
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbz7Hpbm6db0R3agZd-Vb3CeiSyeCcVSnq2gMV1LIqRdVz0T-3HYVcw6aBvSj8DHEHUb/exec';
+
+function today() {
+  const d = new Date();
+  return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${d.getFullYear()}`;
+}
+const t = today();
+document.getElementById('headerDate').textContent = t;
+document.getElementById('cardDate').textContent = t;
+
+const defaultRows = [
+  {shop:'Gen Ekamai',product:'Rice',qty:'20kg'},
+  {shop:'Kachan',product:'Medai Saikyo',qty:'15'},
+  {shop:'Hanare',product:'Aori',qty:'5'},
+  {shop:'',product:'Medai Saikyo',qty:'10'},
+  {shop:'',product:'Nigata Rice',qty:'20'},
+  {shop:'Orihara Shoten',product:'Roll Cabbage',qty:'6'},
+  {shop:'Gen Soi 25',product:'Unagi Kiriotoshi',qty:'3'},
+  {shop:'',product:'Rice',qty:'50'},
+  {shop:'Genshi Taniya',product:'Rice',qty:'20'},
+  {shop:'',product:'Akauo Saikyo',qty:'10'},
+  {shop:'',product:'Medai Saikyo',qty:'10'},
+  {shop:'',product:'Aori',qty:'3k'},
+  {shop:'',product:'Iwashi',qty:'8p'},
+  {shop:'Haru Ranman Cafe',product:'Rice',qty:'25kg'},
+  {shop:'Peko',product:'Rice',qty:'20kg'},
+  {shop:'',product:'',qty:''},
+  {shop:'',product:'',qty:''},
+  {shop:'',product:'',qty:''},
+];
+
+function addRow(shop='',product='',qty='') {
+  const tbody = document.getElementById('orderBody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input class="cell-input" type="text" value="${shop}" placeholder="Shop name"></td>
+    <td><input class="cell-input" type="text" value="${product}" placeholder="Product"></td>
+    <td><input class="cell-input qty" type="text" value="${qty}" placeholder="0"></td>
+    <td><button class="del-btn" onclick="this.closest('tr').remove();adjustOrderFont();">✕</button></td>`;
+  tbody.appendChild(tr);
+  adjustOrderFont();
+}
+defaultRows.forEach(r => addRow(r.shop, r.product, r.qty));
+
+function adjustOrderFont() {
+  const tbody = document.getElementById('orderBody');
+  const rows = tbody.querySelectorAll('tr').length;
+  let fs=12,pd='3px 2px';
+  if(rows>28){fs=8;pd='1px 2px';}
+  else if(rows>24){fs=9;pd='1px 2px';}
+  else if(rows>20){fs=10;pd='2px 2px';}
+  else if(rows>16){fs=11;pd='2px 2px';}
+  tbody.querySelectorAll('.cell-input').forEach(el=>{el.style.fontSize=fs+'px';el.style.padding=pd;});
+}
+
+function preparePrint(){adjustOrderFont();setTimeout(()=>window.print(),100);}
+
+async function saveRecord() {
+  showToast('Saving...','ok');
+  const ds = {
+    ootoya:document.getElementById('f_ootoya').value,
+    other:document.getElementById('f_other').value,
+    condo:document.getElementById('f_condo').value,
+    morning:document.getElementById('f_morning').value,
+    sriracha:document.getElementById('f_sriracha').value,
+    nichada:document.getElementById('f_nichada').value,
+    akami:document.getElementById('f_akami').value,
+    chutoro:document.getElementById('f_chutoro').value,
+    kinu:document.getElementById('f_kinu').value,
+    yose:document.getElementById('f_yose').value,
+    bangkok:document.getElementById('f_bangkok').value,
+    credit:document.getElementById('f_credit').value,
+    shop:document.getElementById('f_shop').value,
+    ssriracha:document.getElementById('f_ssriracha').value,
+  };
+  const orders=[];
+  document.querySelectorAll('#orderBody tr').forEach(tr=>{
+    const ins=tr.querySelectorAll('input');
+    if(ins[0].value||ins[1].value||ins[2].value)
+      orders.push({shop:ins[0].value,product:ins[1].value,qty:ins[2].value});
+  });
+  try {
+    const res = await fetch(GAS_URL,{method:'POST',body:JSON.stringify({date:today(),ds,orders})});
+    const json = await res.json();
+    json.status==='ok' ? showToast('✓ Saved to Google Sheets','ok') : showToast('Error: '+json.message,'err');
+  } catch(e) { showToast('Network error','err'); }
+}
+
+let currentYear=null;
+
+async function openHistory() {
+  document.getElementById('histPanel').classList.add('open');
+  document.getElementById('yearTabs').innerHTML='';
+  document.getElementById('histContent').innerHTML='<div class="info-msg">Loading...</div>';
+  try {
+    const res=await fetch(`${GAS_URL}?action=list`);
+    const json=await res.json();
+    const years=json.years||[];
+    const tabsEl=document.getElementById('yearTabs');
+    if(!years.length){document.getElementById('histContent').innerHTML='<div class="info-msg">No records yet.</div>';return;}
+    years.forEach(y=>{
+      const btn=document.createElement('button');
+      btn.className='year-tab'+(y===(currentYear||years[0])?' active':'');
+      btn.textContent=y;
+      btn.onclick=()=>{
+        document.querySelectorAll('.year-tab').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');currentYear=y;loadDayList(y);
+      };
+      tabsEl.appendChild(btn);
+    });
+    currentYear=currentYear&&years.includes(currentYear)?currentYear:years[0];
+    loadDayList(currentYear);
+  } catch(e){document.getElementById('histContent').innerHTML='<div class="info-msg">Failed to load. Check GAS_URL in index.html.</div>';}
+}
+
+async function loadDayList(year) {
+  document.getElementById('histContent').innerHTML='<div class="info-msg">Loading...</div>';
+  const res=await fetch(`${GAS_URL}?action=sheets&year=${year}`);
+  const json=await res.json();
+  const sheets=json.sheets||[];
+  const el=document.getElementById('histContent');
+  if(!sheets.length){el.innerHTML='<div class="info-msg">No records for '+year+'.</div>';return;}
+  let html='<div class="day-list">';
+  sheets.forEach(s=>{
+    html+=`<div class="day-card" onclick="loadDetail('${year}','${s.name}')">
+      <div class="day-card-date">${s.name}</div>
+      <div class="day-card-meta">Tap to view detail</div>
+    </div>`;
+  });
+  el.innerHTML=html+'</div>';
+}
+
+async function loadDetail(year,date) {
+  document.getElementById('histContent').innerHTML='<div class="info-msg">Loading...</div>';
+  const res=await fetch(`${GAS_URL}?action=record&year=${year}&date=${encodeURIComponent(date)}`);
+  const json=await res.json();
+  const rec=json.record;
+  if(!rec){document.getElementById('histContent').innerHTML='<div class="info-msg">Record not found.</div>';return;}
+  const ds=rec.ds||{};
+  let html=`<button class="rec-back" onclick="loadDayList('${year}')">← Back</button>
+  <div class="rec-detail">
+    <div style="font-size:14px;font-weight:700;color:#1a3a7a;margin-bottom:12px;">${date}</div>
+    <div class="rec-section">
+      <div class="rec-sec-title">Delivery</div>
+      <div class="rec-grid">
+        <div class="rec-item"><div class="rec-item-label">OOTOYA rice</div><div class="rec-item-val">${ds.ootoya||0}</div></div>
+        <div class="rec-item"><div class="rec-item-label">Other rice</div><div class="rec-item-val">${ds.other||0}</div></div>
+        <div class="rec-item"><div class="rec-item-label">Condo</div><div class="rec-item-val">${ds.condo||0}</div></div>
+        <div class="rec-item"><div class="rec-item-label">Morning</div><div class="rec-item-val">${ds.morning||0}</div></div>
+        <div class="rec-item"><div class="rec-item-label">Sriracha</div><div class="rec-item-val">${ds.sriracha||0}</div></div>
+        <div class="rec-item"><div class="rec-item-label">Nichada</div><div class="rec-item-val">${ds.nichada||0}</div></div>
+        <div class="rec-item"><div class="rec-item-label">Tuna Lean</div><div class="rec-item-val">${ds.akami||0}</div></div>
+        <div class="rec-item"><div class="rec-item-label">Tuna Med.</div><div class="rec-item-val">${ds.chutoro||0}</div></div>
+        <div class="rec-item"><div class="rec-item-label">Tofu Kinu</div><div class="rec-item-val">${ds.kinu||0}</div></div>
+        <div class="rec-item"><div class="rec-item-label">Tofu Yose</div><div class="rec-item-val">${ds.yose||0}</div></div>
+      </div>
+    </div>
+    <div class="rec-section">
+      <div class="rec-sec-title">Previous Day Sales</div>
+      <div class="rec-grid">
+        <div class="rec-item sales"><div class="rec-item-label">BANGKOK</div><div class="rec-item-val">${ds.bangkok||0}</div></div>
+        <div class="rec-item sales"><div class="rec-item-label">Credit</div><div class="rec-item-val">${ds.credit||0}</div></div>
+        <div class="rec-item sales"><div class="rec-item-label">Shop</div><div class="rec-item-val">${ds.shop||0}</div></div>
+        <div class="rec-item sales"><div class="rec-item-label">Sriracha</div><div class="rec-item-val">${ds.ssriracha||0}</div></div>
+      </div>
+    </div>`;
+  if(rec.orders&&rec.orders.length){
+    html+=`<div class="rec-section"><div class="rec-sec-title">Order Sheet</div>
+    <table class="rec-table"><thead><tr><th>Shop</th><th>Product</th><th style="text-align:right">Qty</th></tr></thead><tbody>`;
+    rec.orders.forEach(o=>{html+=`<tr><td>${o.shop}</td><td>${o.product}</td><td style="text-align:right">${o.qty}</td></tr>`;});
+    html+=`</tbody></table></div>`;
+  }
+  document.getElementById('histContent').innerHTML=html+'</div>';
+}
+
+function closeHistory(){document.getElementById('histPanel').classList.remove('open');}
+
+function showToast(msg,type='ok'){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast show '+type;
+  setTimeout(()=>el.classList.remove('show'),2500);
+}
+</script>
+</body>
+</html>
