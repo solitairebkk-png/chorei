@@ -252,7 +252,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <script>
 // ★ GASデプロイ後にここのURLを書き換えてください ★
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbz7Hpbm6db0R3agZd-Vb3CeiSyeCcVSnq2gMV1LIqRdVz0T-3HYVcw6aBvSj8DHEHUb/exec';
+const GAS_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
 
 function today() {
   const d = new Date();
@@ -343,13 +343,33 @@ async function saveRecord() {
       orders.push({shop:ins[0].value,product:ins[1].value,qty:ins[2].value});
   });
   try {
-    // GASはPOSTがCORSブロックされるためGETで送信
-    const payload = encodeURIComponent(JSON.stringify({date:today(),ds,orders}));
-    const url = `${GAS_URL}?action=save&data=${payload}`;
-    const res = await fetch(url, {mode:'no-cors'});
-    // no-corsではレスポンスが読めないので2秒後に成功とみなす
-    setTimeout(()=>showToast('✓ Saved to Google Sheets','ok'), 1500);
-  } catch(e) { showToast('Network error: '+e.message,'err'); }
+    const payload = JSON.stringify({date:today(),ds,orders});
+    // 隠しiframe+formでCORSを回避
+    let iframe = document.getElementById('gas_iframe');
+    if (!iframe) {
+      iframe = document.createElement('iframe');
+      iframe.id = 'gas_iframe';
+      iframe.name = 'gas_iframe';
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+    }
+    let form = document.getElementById('gas_form');
+    if (form) form.remove();
+    form = document.createElement('form');
+    form.id = 'gas_form';
+    form.method = 'POST';
+    form.action = GAS_URL;
+    form.target = 'gas_iframe';
+    form.style.display = 'none';
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'payload';
+    input.value = payload;
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+    setTimeout(()=>showToast('✓ Saved to Google Sheets','ok'), 2000);
+  } catch(e) { showToast('Error: '+e.message,'err'); }
 }
 
 let currentYear=null;
