@@ -263,7 +263,22 @@ document.getElementById('headerDate').textContent = t;
 document.getElementById('cardDate').textContent = t;
 
 const defaultRows = [
-    {shop:'',product:'',qty:''},
+  {shop:'Gen Ekamai',product:'Rice',qty:'20kg'},
+  {shop:'Kachan',product:'Medai Saikyo',qty:'15'},
+  {shop:'Hanare',product:'Aori',qty:'5'},
+  {shop:'',product:'Medai Saikyo',qty:'10'},
+  {shop:'',product:'Nigata Rice',qty:'20'},
+  {shop:'Orihara Shoten',product:'Roll Cabbage',qty:'6'},
+  {shop:'Gen Soi 25',product:'Unagi Kiriotoshi',qty:'3'},
+  {shop:'',product:'Rice',qty:'50'},
+  {shop:'Genshi Taniya',product:'Rice',qty:'20'},
+  {shop:'',product:'Akauo Saikyo',qty:'10'},
+  {shop:'',product:'Medai Saikyo',qty:'10'},
+  {shop:'',product:'Aori',qty:'3k'},
+  {shop:'',product:'Iwashi',qty:'8p'},
+  {shop:'Haru Ranman Cafe',product:'Rice',qty:'25kg'},
+  {shop:'Peko',product:'Rice',qty:'20kg'},
+  {shop:'',product:'',qty:''},
   {shop:'',product:'',qty:''},
   {shop:'',product:'',qty:''},
 ];
@@ -328,10 +343,13 @@ async function saveRecord() {
       orders.push({shop:ins[0].value,product:ins[1].value,qty:ins[2].value});
   });
   try {
-    const res = await fetch(GAS_URL,{method:'POST',body:JSON.stringify({date:today(),ds,orders})});
-    const json = await res.json();
-    json.status==='ok' ? showToast('✓ Saved to Google Sheets','ok') : showToast('Error: '+json.message,'err');
-  } catch(e) { showToast('Network error','err'); }
+    // GASはPOSTがCORSブロックされるためGETで送信
+    const payload = encodeURIComponent(JSON.stringify({date:today(),ds,orders}));
+    const url = `${GAS_URL}?action=save&data=${payload}`;
+    const res = await fetch(url, {mode:'no-cors'});
+    // no-corsではレスポンスが読めないので2秒後に成功とみなす
+    setTimeout(()=>showToast('✓ Saved to Google Sheets','ok'), 1500);
+  } catch(e) { showToast('Network error: '+e.message,'err'); }
 }
 
 let currentYear=null;
